@@ -12,6 +12,7 @@ by Pacman agents (in searchAgents.py).
 """
 
 import util
+from game import Directions
 
 
 class SearchProblem:
@@ -84,8 +85,81 @@ def depthFirstSearch(problem):
     print( "Start's successors:", problem.getSuccessors(problem.getStartState()) )
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    stack = util.Stack()
+    start = problem.getStartState()
+    visited = []
+    directions = []
 
+    if problem.isGoalState(start):
+        return directions
+
+    visited.append(start)
+    directions.append("start")
+
+    for s in problem.getSuccessors(start):
+        stack.push(s)
+
+    while not stack.isEmpty():
+        location, direction, cost = stack.pop()
+
+        if location not in visited:
+            visited.append(location)
+            directions.append(direction)
+            if problem.isGoalState(location):
+                break
+
+            for s in problem.getSuccessors(location):
+                stack.push(s)
+
+    out = getPath(visited,directions)
+    print(visited,directions)
+    """
+    print("Start:", problem.getStartState())
+    print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
+    print("Start's successors:", problem.getSuccessors(problem.getStartState()))
+    """
+    return out
+
+def getPath(visited, directions):
+    l = visited[-1]
+    d = directions[-1]
+    if d=="start":
+        return []
+    else:
+        parent = getParent(l,d)
+        i = visited.index(parent)
+        return getPath(visited[:i+1], directions[:i+1]) + [convert(d)]
+
+def getParent(location, direction):
+    x,y = location
+    if direction =="West":
+        return (x+1,y)
+    elif direction=="East":
+        return (x-1,y)
+    elif (direction=="North"):
+        return (x,y-1)
+    else:
+        return (x,y+1)
+
+def opposite(d):
+    if d==Directions.NORTH:
+        return Directions.SOUTH
+    if d==Directions.SOUTH:
+        return Directions.NORTH
+    if d==Directions.WEST:
+        return Directions.EAST
+    if d==Directions.EAST:
+        return Directions.WEST
+
+def convert(path):
+    if path=="West":
+        return Directions.WEST
+    elif path=="East":
+        return Directions.EAST
+    elif path=="South":
+        return Directions.SOUTH
+    else:
+        return Directions.NORTH
 
 def breadthFirstSearch(problem):
     "Search the shallowest nodes in the search tree first. [p 81]"
@@ -115,7 +189,7 @@ def aStarSearch(problem, heuristic=nullHeuristic):
 
     "Bonus assignment: Adjust the getSuccessors() method in CrossroadSearchAgent class"
     "in searchAgents.py and test with:"
-    "python run.py -l bigMaze -z .5 -p SearchAgent -a fn=astar,heuristic=manhattanHeuristic,prob=CrossroadSearchProblem"
+    "python pacman.py -l bigMaze -z .5 -p CrossroadSearchAgent -a fn=astar,heuristic=manhattanHeuristic "
 
 # Abbreviations
 bfs = breadthFirstSearch
