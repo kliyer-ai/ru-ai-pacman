@@ -1,3 +1,6 @@
+#Samarpan Rai: s4753763
+#Nick Stracke: s4771192
+
 """
 Here's the intended output of this script, once you fill it in:
 
@@ -14,8 +17,11 @@ def shopSmart(orderList, fruitShops):
         orderList: List of (fruit, numPound) tuples
         fruitShops: List of FruitShops
     """
-    "*** YOUR CODE HERE ***"
-    return None
+    bestShop = fruitShops[0]
+    for currentShop in fruitShops[1:]:
+        if currentShop.getPriceOfOrder(orderList) < bestShop.getPriceOfOrder(orderList):
+            bestShop = currentShop
+    return bestShop
 
 fruits1 = {'apples': 2.0, 'oranges':1.0}
 fruits2 = {'apples': 1.0, 'oranges': 5.0}

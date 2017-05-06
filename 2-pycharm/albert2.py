@@ -1,3 +1,6 @@
+#Samarpan Rai: s4753763
+#Nick Stracke: s4771192
+
 import math # a built-in library containing some mathematical operations like square root
 
 '''
@@ -19,24 +22,29 @@ For example given three elements A, B and C, the result is:
 [[A, B, C], [A, C, B], [B, A, C], [B, C, A], [C, A, B], [C, B, A]]
 '''
 # 'current' has an empty list as default value, if no value is given
+
 def permutations(elements, current=list()):
     orders = []
-    if len(elements) == 0: # if there are no more elements to add:
-        orders += current.copy() # add a copy of the current order to the list of orders
-    for i in range(len(elements)): # for each index in remaining elements, do:
-        current.append(elements.pop(i)) # prepare: move the element at the index from the remaining list to the current order
+    if len(elements) == 0:              # if there are no more elements to add:
+        orders += [current.copy()]        # add a copy of the current order to the list of orders
+
+    for i in range(len(elements)):      # for each index in remaining elements, do:
+        current.append(elements.pop(i)) # prepare: move the element at the index from the
+                                        # remaining list to the current order
         orders += permutations(elements, current) # recursively generate all following orders
-        elements.insert(i,current.pop()) # repair: move the element from the current order back to the index on the remaining list
+        elements.insert(i,current.pop()) # repair: move the element from the current order back
+                                         # to the index on the remaining list
     return orders # return all generated orders
 
 '''
 Given a path (list) of Albert Heijns, return the total distance of the path.
 '''
 def pathDistance(ahpath):
-    totalDist = 0
-    for i in range(1,len(ahpath)): # 'i' starts at 1, ends at last index of 'ahpath'
-        totalDist += distance(ahpath[i-1].getPosition(), ahpath[i].getPosition())
-    return totalDist
+   totalDist = 0
+   for i in range(1,len(ahpath)): # 'i' starts at 1, ends at last index of 'ahpath'
+       totalDist += distance(ahpath[i-1].getPosition(), ahpath[i].getPosition())
+   return totalDist
+
 
 '''
 Returns the distance between points 'xy1' and 'xy2'
@@ -48,9 +56,10 @@ def distance(xy1, xy2):
 albertheijns = [
     AlbertHeijn('Daalseweg', 85, 77),
     AlbertHeijn('Groenestraat', 68, 69),
+    AlbertHeijn('Stationsplein', 70, 82),
     AlbertHeijn('van Schevichavenstraat', 79, 83),
-    AlbertHeijn('St. Jacobslaan', 70, 58),
-    AlbertHeijn('Stationsplein', 70, 82)
+    AlbertHeijn('St. Jacobslaan', 70, 58)
+
     ]
 
 'print the path along all Albert Heijns with the minimum total distance'
