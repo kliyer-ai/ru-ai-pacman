@@ -179,15 +179,14 @@ def uniformCostSearch(problem):
     "Search the node of least total cost first. "
     "*** YOUR CODE HERE ***"
 
-    costFunction = uFSHeursitic
+    def uFSHeursitic(item):
+        position, direction, cost = item
+        return cost
 
-    pQWF = util.PriorityQueueWithFunction(costFunction);
+    pQWF = util.PriorityQueueWithFunction(uFSHeursitic);
     return findGoal(problem, pQWF)
 
-def uFSHeursitic(item):
-    location, direction, cost = item
 
-    return 2**location[0]
 
 
 def nullHeuristic(state, problem=None):
@@ -202,11 +201,19 @@ def aStarSearch(problem, heuristic=nullHeuristic):
     "Search the node that has the lowest combined cost and heuristic first."
 
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    def aStarHeuristic(item):
+        position, direction, cost = item
+        return cost+heuristic(position, problem)
+
+    pQWF = util.PriorityQueueWithFunction(aStarHeuristic)
+    return findGoal(problem, pQWF)
 
     "Bonus assignment: Adjust the getSuccessors() method in CrossroadSearchAgent class"
     "in searchAgents.py and test with:"
     "python pacman.py -l bigMaze -z .5 -p CrossroadSearchAgent -a fn=astar,heuristic=manhattanHeuristic "
+
+
+
 
 # Abbreviations
 bfs = breadthFirstSearch
