@@ -85,7 +85,14 @@ def depthFirstSearch(problem):
     print( "Start's successors:", problem.getSuccessors(problem.getStartState()) )
     """
     "*** YOUR CODE HERE ***"
+
     stack = util.Stack()
+
+    return findGoal(problem, stack)
+
+
+def findGoal(problem, dataStructure):
+    #stack = util.Stack()
     start = problem.getStartState()
     visited = []
     directions = []
@@ -97,10 +104,10 @@ def depthFirstSearch(problem):
     directions.append("start")
 
     for s in problem.getSuccessors(start):
-        stack.push(s)
+        dataStructure.push(s)
 
-    while not stack.isEmpty():
-        location, direction, cost = stack.pop()
+    while not dataStructure.isEmpty():
+        location, direction, cost = dataStructure.pop()
 
         if location not in visited:
             visited.append(location)
@@ -109,10 +116,10 @@ def depthFirstSearch(problem):
                 break
 
             for s in problem.getSuccessors(location):
-                stack.push(s)
+                dataStructure.push(s)
 
-    out = getPath(visited,directions)
-    print(visited,directions)
+    out = getPath(visited, directions)
+    print(visited, directions)
     """
     print("Start:", problem.getStartState())
     print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
@@ -164,13 +171,23 @@ def convert(path):
 def breadthFirstSearch(problem):
     "Search the shallowest nodes in the search tree first. [p 81]"
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    queue = util.Queue()
+    return findGoal(problem, queue)
 
 
 def uniformCostSearch(problem):
     "Search the node of least total cost first. "
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+
+    costFunction = uFSHeursitic
+
+    pQWF = util.PriorityQueueWithFunction(costFunction);
+    return findGoal(problem, pQWF)
+
+def uFSHeursitic(item):
+    location, direction, cost = item
+
+    return 2**location[0]
 
 
 def nullHeuristic(state, problem=None):
