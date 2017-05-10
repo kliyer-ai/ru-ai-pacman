@@ -85,9 +85,7 @@ def depthFirstSearch(problem):
     print( "Start's successors:", problem.getSuccessors(problem.getStartState()) )
     """
     "*** YOUR CODE HERE ***"
-
     stack = util.Stack()
-
     return findGoal(problem, stack)
 
 
@@ -95,7 +93,7 @@ def findGoal(problem, dataStructure):
     start = problem.getStartState()
     visited = []
     directions = []
-
+    #check start state and add successors if not goal
     if problem.isGoalState(start):
         return directions
 
@@ -107,39 +105,31 @@ def findGoal(problem, dataStructure):
 
     while not dataStructure.isEmpty():
         location, direction, cost = dataStructure.pop()
-        print(cost)
+
         if location not in visited:
             visited.append(location)
             directions.append(direction)
-            if problem.isGoalState(location):
+            if problem.isGoalState(location):   #check if goal state
                 break
-
-            for sLocation, sDirection, sCost in problem.getSuccessors(location):
-                totalCost = cost + sCost
+            for sLocation, sDirection, sCost in problem.getSuccessors(location):    #add successors
+                totalCost = cost + sCost #accumulate costs; cost refers to cost of parent; sCost is 1 (by default)
                 dataStructure.push((sLocation, sDirection, totalCost))
 
-
-
     out = getPath(visited, directions)
-    print(visited, directions)
-    """
-    print("Start:", problem.getStartState())
-    print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
-    print("Start's successors:", problem.getSuccessors(problem.getStartState()))
-    """
     return out
 
 def getPath(visited, directions):
-    l = visited[-1]
+    l = visited[-1]     #starts with last element of visited list, which is the goal
     d = directions[-1]
     if d=="start":
         return []
     else:
         parent = getParent(l,d)
-        i = visited.index(parent)
-        return getPath(visited[:i+1], directions[:i+1]) + [convert(d)]
+        i = visited.index(parent)   #find direction for current location
+        return getPath(visited[:i+1], directions[:i+1]) + [convert(d)]  #recurse through sliced list
 
-def getParent(location, direction):
+
+def getParent(location, direction): #find parent node based on child location and direction
     x,y = location
     if direction =="West":
         return (x+1,y)
@@ -150,15 +140,6 @@ def getParent(location, direction):
     else:
         return (x,y+1)
 
-def opposite(d):
-    if d==Directions.NORTH:
-        return Directions.SOUTH
-    if d==Directions.SOUTH:
-        return Directions.NORTH
-    if d==Directions.WEST:
-        return Directions.EAST
-    if d==Directions.EAST:
-        return Directions.WEST
 
 def convert(path):
     if path=="West":
@@ -170,6 +151,7 @@ def convert(path):
     else:
         return Directions.NORTH
 
+
 def breadthFirstSearch(problem):
     "Search the shallowest nodes in the search tree first. [p 81]"
     "*** YOUR CODE HERE ***"
@@ -180,15 +162,12 @@ def breadthFirstSearch(problem):
 def uniformCostSearch(problem):
     "Search the node of least total cost first. "
     "*** YOUR CODE HERE ***"
-
     def uFSHeursitic(item):
-        position, direction, cost = item
+        position, direction, cost = item    #heuristic is just total cost
         return cost
 
     pQWF = util.PriorityQueueWithFunction(uFSHeursitic);
     return findGoal(problem, pQWF)
-
-
 
 
 def nullHeuristic(state, problem=None):
@@ -203,15 +182,9 @@ def aStarSearch(problem, heuristic=nullHeuristic):
     "Search the node that has the lowest combined cost and heuristic first."
 
     "*** YOUR CODE HERE ***"
-    v = [problem.getStartState()]
-    d = ["start"]
-
     def aStarHeuristic(item):
         position, direction, cost = item
-        v.append(position)
-        d.append(direction)
-        #len(getPath(v,d))+
-        return cost + heuristic(position, problem)
+        return cost + heuristic(position, problem) #combine total cost with cost of heuristic(manhatten)
 
     pQWF = util.PriorityQueueWithFunction(aStarHeuristic)
     return findGoal(problem, pQWF)
