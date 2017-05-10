@@ -92,7 +92,6 @@ def depthFirstSearch(problem):
 
 
 def findGoal(problem, dataStructure):
-    #stack = util.Stack()
     start = problem.getStartState()
     visited = []
     directions = []
@@ -108,15 +107,18 @@ def findGoal(problem, dataStructure):
 
     while not dataStructure.isEmpty():
         location, direction, cost = dataStructure.pop()
-
+        print(cost)
         if location not in visited:
             visited.append(location)
             directions.append(direction)
             if problem.isGoalState(location):
                 break
 
-            for s in problem.getSuccessors(location):
-                dataStructure.push(s)
+            for sLocation, sDirection, sCost in problem.getSuccessors(location):
+                totalCost = cost + sCost
+                dataStructure.push((sLocation, sDirection, totalCost))
+
+
 
     out = getPath(visited, directions)
     print(visited, directions)
@@ -201,9 +203,15 @@ def aStarSearch(problem, heuristic=nullHeuristic):
     "Search the node that has the lowest combined cost and heuristic first."
 
     "*** YOUR CODE HERE ***"
+    v = [problem.getStartState()]
+    d = ["start"]
+
     def aStarHeuristic(item):
         position, direction, cost = item
-        return cost+heuristic(position, problem)
+        v.append(position)
+        d.append(direction)
+        #len(getPath(v,d))+
+        return cost + heuristic(position, problem)
 
     pQWF = util.PriorityQueueWithFunction(aStarHeuristic)
     return findGoal(problem, pQWF)
