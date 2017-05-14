@@ -120,25 +120,28 @@ def findGoal(problem, dataStructure):
 
 def getPath(visited, directions):
     l = visited[-1]     #starts with last element of visited list, which is the goal
-    d = directions[-1]
-    if d=="start":
+    direction = directions[-1] if type(directions[-1])==list else [directions[-1]]
+    if direction==["start"]:
         return []
     else:
-        parent = getParent(l,d)
+        parent = getParent(l,direction)
         i = visited.index(parent)   #find direction for current location
-        return getPath(visited[:i+1], directions[:i+1]) + [convert(d)]  #recurse through sliced list
+        return getPath(visited[:i+1], directions[:i+1]) + [convert(d) for d in direction]  #recurse through sliced list
 
 
 def getParent(location, direction): #find parent node based on child location and direction
     x,y = location
+    length = len(direction)
+    direction = direction[0]
+
     if direction =="West":
-        return (x+1,y)
+        return (x+1*length,y)
     elif direction=="East":
-        return (x-1,y)
+        return (x-1*length,y)
     elif (direction=="North"):
-        return (x,y-1)
+        return (x,y-1*length)
     else:
-        return (x,y+1)
+        return (x,y+1*length)
 
 
 def convert(path):

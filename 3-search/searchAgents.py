@@ -182,7 +182,7 @@ class ClosestDotSearchAgent(SearchAgent):
     def registerInitialState(self, state):
         self.actions = []
         currentState = state
-        while(currentState.getFood().count() > 0):
+        while (currentState.getFood().count() > 0):
             nextPathSegment = self.findPathToClosestDot(
                 currentState)  # The missing piece
             self.actions += nextPathSegment
@@ -247,7 +247,6 @@ class AnyFoodSearchProblem(PositionSearchProblem):
 
 
 class CrossroadSearchProblem(PositionSearchProblem):
-
     def getSuccessors(self, state):
         """
         Returns successor states, the actions they require, and a cost of 1.
@@ -259,17 +258,42 @@ class CrossroadSearchProblem(PositionSearchProblem):
          required to get there, and 'stepCost' is the incremental
          cost of expanding to that successor
         """
+        def crossroad(x, y):
+            i = 0
+            for action in [Directions.NORTH, Directions.SOUTH,
+                           Directions.EAST, Directions.WEST]:
+
+                dx, dy = Actions.directionToVector(action)
+                nextx, nexty = int(x + dx), int(y + dy)
+                if not self.walls[nextx][nexty]:
+                    i += 1
+            return i > 2
+
 
         successors = []
         for action in [Directions.NORTH, Directions.SOUTH,
                        Directions.EAST, Directions.WEST]:
             # Add a successor state to the successor list if the action is legal
             # Here's a code snippet for figuring out whether a new position hits a wall:
-            #   x,y = currentPosition
-            #   dx, dy = Actions.directionToVector(action)
-            #   nextx, nexty = int(x + dx), int(y + dy)
-            #   hitsWall = self.walls[nextx][nexty]
-            1
+
+            x, y = state
+            dx, dy = Actions.directionToVector(action)
+            cost = 0
+            directions = []
+            isCrossroad = False
+
+            while not isCrossroad and not self.walls[int(x + dx)][int(y + dy)]: #only considers next node if not a wall and not a crossroad
+                cost += 1
+                directions.append(action)
+                x, y = int(x + dx), int(y + dy)
+                if crossroad(x, y):
+                    isCrossroad = True
+
+            if cost > 0:
+                successors.append(((x,y),directions,cost))
+
+
+
 
         # Bookkeeping for display purposes
         self._expanded += 1
@@ -277,6 +301,7 @@ class CrossroadSearchProblem(PositionSearchProblem):
         "*** YOUR CODE HERE ***"
 
         return successors
+
 
 ##################
 # Mini-contest 1 #
