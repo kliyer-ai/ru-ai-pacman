@@ -92,47 +92,47 @@ def depthFirstSearch(problem):
 def findGoal(problem, dataStructure):
     start = problem.getStartState()
     visited = []
-    directions = []
+    directions = [] #this is gonna be a list of lists
     #check start state and add successors if not goal
     if problem.isGoalState(start):
         return directions
 
     visited.append(start)
-    directions.append("start")
+    directions.append(["start"])
 
     for s in problem.getSuccessors(start):
         dataStructure.push(s)
 
     while not dataStructure.isEmpty():
         location, direction, cost = dataStructure.pop()
-
         if location not in visited:
             visited.append(location)
-            directions.append(direction)
+            direction = direction if type(direction) == list else [direction]   #makes sure that direction is always a list
+            directions.append(direction)                                        # necessary, because crossroadSearch return list of actions whereas normal search doesn't
             if problem.isGoalState(location):   #check if goal state
                 break
             for sLocation, sDirection, sCost in problem.getSuccessors(location):    #add successors
-                totalCost = cost + sCost #accumulate costs; cost refers to cost of parent; sCost is 1 (by default)
+                totalCost = cost + sCost #accumulate costs; cost refers to cost of parent; sCost is 1 (in normal search)
                 dataStructure.push((sLocation, sDirection, totalCost))
 
-    out = getPath(visited, directions)
-    return out
+
+    return  getPath(visited, directions)
 
 def getPath(visited, directions):
     l = visited[-1]     #starts with last element of visited list, which is the goal
-    direction = directions[-1] if type(directions[-1])==list else [directions[-1]]
+    direction = directions[-1] #directions will be list of action(s)
     if direction==["start"]:
         return []
     else:
         parent = getParent(l,direction)
         i = visited.index(parent)   #find direction for current location
-        return getPath(visited[:i+1], directions[:i+1]) + [convert(d) for d in direction]  #recurse through sliced list
+        return getPath(visited[:i+1], directions[:i+1]) + direction  #recurse through sliced list
 
 
-def getParent(location, direction): #find parent node based on child location and direction
+def getParent(location, directions): #find parent node based on child location and direction
     x,y = location
-    length = len(direction)
-    direction = direction[0]
+    length = len(directions)
+    direction = directions[0]
 
     if direction =="West":
         return (x+1*length,y)
@@ -142,17 +142,6 @@ def getParent(location, direction): #find parent node based on child location an
         return (x,y-1*length)
     else:
         return (x,y+1*length)
-
-
-def convert(path):
-    if path=="West":
-        return Directions.WEST
-    elif path=="East":
-        return Directions.EAST
-    elif path=="South":
-        return Directions.SOUTH
-    else:
-        return Directions.NORTH
 
 
 def breadthFirstSearch(problem):
@@ -187,7 +176,7 @@ def aStarSearch(problem, heuristic=nullHeuristic):
     "*** YOUR CODE HERE ***"
     def aStarHeuristic(item):
         position, direction, cost = item
-        return cost + heuristic(position, problem) #combine total cost with cost of heuristic(manhatten)
+        return cost + heuristic(position, problem) #combines actual cost of getting to node with cost of heuristic(manhatten)
 
     pQWF = util.PriorityQueueWithFunction(aStarHeuristic)
     return findGoal(problem, pQWF)
