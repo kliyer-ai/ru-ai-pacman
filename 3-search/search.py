@@ -92,21 +92,19 @@ def depthFirstSearch(problem):
 def findGoal(problem, dataStructure):
 
     #helper function
-    def getPath(child,path):
+    def getPath(child,explored):
         if child == problem.getStartState():
             return []
         else:
-            for c, parent, direction in path:
-                if child==c:
-                    return getPath(parent,path) + direction
+            parent, direction = explored[child]
+            return getPath(parent,explored) + direction
 
     #initialize lists
     start = problem.getStartState()
-    visited = [start]
-    path = [(start,None,[])]   #tuple of child node, parent node, direction
+    explored = {start: (None,[])}   #dictionary that hold parent and direction for each explored ndoe
 
     if problem.isGoalState(start):
-        return path
+        return []
 
     for sLocation, sDirection,sCost in problem.getSuccessors(start):
         dataStructure.push((sLocation, sDirection, sCost, sCost, start))
@@ -115,18 +113,15 @@ def findGoal(problem, dataStructure):
         location, direction, cost, totalCost, parent = dataStructure.pop()
         direction = direction if type(direction)==list else [direction] #this makes sure direction is always a list
                                                                         #necessary due to the way crossroad search is implemented
-        if location not in visited:
-            visited.append(location)
-            path.append((location, parent, direction))
+        if location not in explored:
+            explored[location] = (parent,direction)
             if problem.isGoalState(location):   #check if goal state
-                path = getPath(location,path)
-                break
+                return getPath(location,explored)
             for sLocation, sDirection, sCost in problem.getSuccessors(location):    #add successors
                 newTotalCost = totalCost + sCost #accumulate costs; totalCost refers to totalCost of parent; sCost is 1 (in normal search)
                 dataStructure.push((sLocation, sDirection, sCost, newTotalCost, location))
 
-    return  path
-
+    print("Error: There is no goal")
 
 def breadthFirstSearch(problem):
     "Search the shallowest nodes in the search tree first. [p 81]"
