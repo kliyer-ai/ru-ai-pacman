@@ -90,58 +90,42 @@ def depthFirstSearch(problem):
 
 
 def findGoal(problem, dataStructure):
+
+    #helper function
+    def getPath(child,path):
+        if child == problem.getStartState():
+            return []
+        else:
+            for c, parent, direction in path:
+                if child==c:
+                    return getPath(parent,path) + direction
+
+    #initialize lists
     start = problem.getStartState()
-    visited = []
-    directions = [] #this is gonna be a list of lists
-    #check start state and add successors if not goal
+    visited = [start]
+    path = [(start,None,[])]   #tuple of child node, parent node, direction
+
     if problem.isGoalState(start):
-        return directions
+        return path
 
-    visited.append(start)
-    directions.append(["start"])
-
-    for s in problem.getSuccessors(start):
-        dataStructure.push(s)
+    for sLocation, sDirection,sCost in problem.getSuccessors(start):
+        dataStructure.push((sLocation, sDirection, sCost, sCost, start))
 
     while not dataStructure.isEmpty():
-        location, direction, cost = dataStructure.pop()
+        location, direction, cost, totalCost, parent = dataStructure.pop()
+        direction = direction if type(direction)==list else [direction] #this makes sure direction is always a list
+                                                                        #necessary due to the way crossroad search is implemented
         if location not in visited:
             visited.append(location)
-            direction = direction if type(direction) == list else [direction]   #makes sure that direction is always a list
-            directions.append(direction)                                        # necessary, because crossroadSearch return list of actions whereas normal search doesn't
+            path.append((location, parent, direction))
             if problem.isGoalState(location):   #check if goal state
+                path = getPath(location,path)
                 break
             for sLocation, sDirection, sCost in problem.getSuccessors(location):    #add successors
-                totalCost = cost + sCost #accumulate costs; cost refers to cost of parent; sCost is 1 (in normal search)
-                dataStructure.push((sLocation, sDirection, totalCost))
+                newTotalCost = totalCost + sCost #accumulate costs; totalCost refers to totalCost of parent; sCost is 1 (in normal search)
+                dataStructure.push((sLocation, sDirection, sCost, newTotalCost, location))
 
-
-    return  getPath(visited, directions)
-
-def getPath(visited, directions):
-    l = visited[-1]     #starts with last element of visited list, which is the goal
-    direction = directions[-1] #directions will be list of action(s)
-    if direction==["start"]:
-        return []
-    else:
-        parent = getParent(l,direction)
-        i = visited.index(parent)   #find direction for current location
-        return getPath(visited[:i+1], directions[:i+1]) + direction  #recurse through sliced list
-
-
-def getParent(location, directions): #find parent node based on child location and direction
-    x,y = location
-    length = len(directions)
-    direction = directions[0]
-
-    if direction =="West":
-        return (x+1*length,y)
-    elif direction=="East":
-        return (x-1*length,y)
-    elif (direction=="North"):
-        return (x,y-1*length)
-    else:
-        return (x,y+1*length)
+    return  path
 
 
 def breadthFirstSearch(problem):
@@ -155,7 +139,8 @@ def uniformCostSearch(problem):
     "Search the node of least total cost first. "
     "*** YOUR CODE HERE ***"
     def uFSHeursitic(item):
-        position, direction, cost = item    #heuristic is just total cost
+        position, direction, cost, totalCost, parent = item
+        print(cost)#heuristic is just total cost
         return cost
 
     pQWF = util.PriorityQueueWithFunction(uFSHeursitic);
@@ -175,8 +160,8 @@ def aStarSearch(problem, heuristic=nullHeuristic):
 
     "*** YOUR CODE HERE ***"
     def aStarHeuristic(item):
-        position, direction, cost = item
-        return cost + heuristic(position, problem) #combines actual cost of getting to node with cost of heuristic(manhatten)
+        position, direction, cost, totalCost, parent = item
+        return totalCost + heuristic(position, problem) #combines actual cost of getting to node with cost of heuristic(manhatten)
 
     pQWF = util.PriorityQueueWithFunction(aStarHeuristic)
     return findGoal(problem, pQWF)
