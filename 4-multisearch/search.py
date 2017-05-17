@@ -69,6 +69,34 @@ def tinyMazeSearch(problem):
     return [s, s, w, s, w, w, s, w]
 
 
+def findGoal(problem, dataStructure):
+    start, corners = problem.getStartState()
+    explored = {start: (None,[])}   #dictionary that hold parent and direction for each explored ndoe
+
+    if problem.isGoalState(start):
+        return []
+    for sLocation, sDirection,sCost in problem.getSuccessors(start):
+        dataStructure.push((sLocation, sDirection, sCost, start)) # tuple of location, direction, cost of exploring, total accumulated cost and parent
+
+    while not dataStructure.isEmpty():
+        location, direction, totalCost, parent = dataStructure.pop()
+        if location not in explored:
+            direction = direction if type(direction) == list else [direction]  # this makes sure direction is always a list
+            explored[location] = (parent,direction)
+            if problem.isGoalState(location):   #check if goal state
+                path = []
+                while location != start:
+                    location, direction = explored[location]
+                    path = direction + path
+                return path
+            for sLocation, sDirection, sCost in problem.getSuccessors(location):    #add successors
+                newTotalCost = totalCost + sCost #accumulate costs; totalCost refers to totalCost of parent; sCost is 1 (in normal search)
+                dataStructure.push((sLocation, sDirection, newTotalCost, location))
+
+    print("Error: There is no goal")
+    return []
+
+
 def depthFirstSearch(problem):
     """
     Search the deepest nodes in the search tree first [p 85].
@@ -90,7 +118,8 @@ def depthFirstSearch(problem):
 def breadthFirstSearch(problem):
     "Search the shallowest nodes in the search tree first. [p 81]"
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    queue = util.Queue()
+    return findGoal(problem, queue)
 
 
 def uniformCostSearch(problem):
