@@ -90,38 +90,31 @@ def depthFirstSearch(problem):
 
 
 def findGoal(problem, dataStructure):
-
-    #helper function
-    def getPath(child,explored):
-        if child == problem.getStartState():
-            return []
-        else:
-            parent, direction = explored[child]
-            return getPath(parent,explored) + direction
-
-    #initialize lists
     start = problem.getStartState()
     explored = {start: (None,[])}   #dictionary that hold parent and direction for each explored ndoe
 
     if problem.isGoalState(start):
         return []
-
     for sLocation, sDirection,sCost in problem.getSuccessors(start):
-        dataStructure.push((sLocation, sDirection, sCost, sCost, start))
+        dataStructure.push((sLocation, sDirection, sCost, start)) # tuple of location, direction, cost of exploring, total accumulated cost and parent
 
     while not dataStructure.isEmpty():
-        location, direction, cost, totalCost, parent = dataStructure.pop()
-        direction = direction if type(direction)==list else [direction] #this makes sure direction is always a list
-                                                                        #necessary due to the way crossroad search is implemented
+        location, direction, totalCost, parent = dataStructure.pop()
         if location not in explored:
+            direction = direction if type(direction) == list else [direction]  # this makes sure direction is always a list
             explored[location] = (parent,direction)
             if problem.isGoalState(location):   #check if goal state
-                return getPath(location,explored)
+                path = []
+                while location != start:
+                    location, direction = explored[location]
+                    path = direction + path
+                return path
             for sLocation, sDirection, sCost in problem.getSuccessors(location):    #add successors
                 newTotalCost = totalCost + sCost #accumulate costs; totalCost refers to totalCost of parent; sCost is 1 (in normal search)
-                dataStructure.push((sLocation, sDirection, sCost, newTotalCost, location))
+                dataStructure.push((sLocation, sDirection, newTotalCost, location))
 
     print("Error: There is no goal")
+    return []
 
 def breadthFirstSearch(problem):
     "Search the shallowest nodes in the search tree first. [p 81]"
@@ -134,9 +127,8 @@ def uniformCostSearch(problem):
     "Search the node of least total cost first. "
     "*** YOUR CODE HERE ***"
     def uFSHeursitic(item):
-        position, direction, cost, totalCost, parent = item
-        print(cost)#heuristic is just total cost
-        return cost
+        position, direction, totalCost, parent = item
+        return totalCost
 
     pQWF = util.PriorityQueueWithFunction(uFSHeursitic);
     return findGoal(problem, pQWF)
@@ -155,7 +147,7 @@ def aStarSearch(problem, heuristic=nullHeuristic):
 
     "*** YOUR CODE HERE ***"
     def aStarHeuristic(item):
-        position, direction, cost, totalCost, parent = item
+        position, direction, totalCost, parent = item
         return totalCost + heuristic(position, problem) #combines actual cost of getting to node with cost of heuristic(manhatten)
 
     pQWF = util.PriorityQueueWithFunction(aStarHeuristic)
