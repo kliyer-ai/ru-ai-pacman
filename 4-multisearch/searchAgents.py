@@ -160,7 +160,7 @@ class CornersProblem(search.SearchProblem):
         return len(actions)
 
 
-def cornersHeuristic(state, problem):
+def cornersHeuristic(item, problem):
     """
     A heuristic for the CornersProblem that you defined.
 
@@ -179,7 +179,8 @@ def cornersHeuristic(state, problem):
     walls = problem.walls
 
     "*** YOUR CODE HERE ***"
-    return 0  # Default to trivial solution
+    state, direction, totalCost, parent = item
+    return totalCost
 
 
 def foodHeuristic(state, problem):

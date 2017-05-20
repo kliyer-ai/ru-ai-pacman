@@ -143,7 +143,8 @@ def aStarSearch(problem, heuristic=nullHeuristic):
     "Search the node that has the lowest combined cost and heuristic first."
 
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    pQWF = util.PriorityQueueWithFunction(lambda item: heuristic(item, problem))
+    return findGoal(problem, pQWF)
 
     "Bonus assignment: Adjust the getSuccessors() method in CrossroadSearchAgent class"
     "in searchAgents.py and test with:"
