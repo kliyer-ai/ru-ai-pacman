@@ -112,15 +112,14 @@ class CornersProblem(search.SearchProblem):
         for action in [Directions.NORTH, Directions.SOUTH,
                        Directions.EAST, Directions.WEST]:
             location, corners = state
-            x,y = location
-            dx, dy = Actions.directionToVector(action)
-            nextx, nexty = (int(x + dx), int(y + dy))
-
-
             cost = 0
             actions = []
+            x,y = location
+            dx, dy = Actions.directionToVector(action)
+
+            nextx, nexty = (int(x + dx), int(y + dy))
             nextLocation = ()
-            while not self.walls[nextx][nexty]:
+            while not self.walls[nextx][nexty]: #this is basically a really simple search with O(n) complexity
                 cost+=1
                 actions.append(action)
                 nextLocation = (nextx, nexty)
