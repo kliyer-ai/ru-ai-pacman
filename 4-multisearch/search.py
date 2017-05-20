@@ -70,30 +70,33 @@ def tinyMazeSearch(problem):
 
 
 def findGoal(problem, dataStructure):
-    start, corners = problem.getStartState()
-    explored = {start: (None,[])}   #dictionary that hold parent and direction for each explored ndoe
+    startState = problem.getStartState()
+    explored = {startState: (None,None)}   #dictionary that hold parent and direction for each explored ndoe
 
-    if problem.isGoalState(start):
-        return []
-    for sLocation, sDirection,sCost in problem.getSuccessors(start):
-        dataStructure.push((sLocation, sDirection, sCost, start)) # tuple of location, direction, cost of exploring, total accumulated cost and parent
+
+    for sState, sDirection,sCost in problem.getSuccessors(startState):
+        dataStructure.push((sState, sDirection, sCost, startState)) # tuple of state, direction, total accumulated cost and parent
 
     while not dataStructure.isEmpty():
-        location, direction, totalCost, parent = dataStructure.pop()
-        if location not in explored:
-            direction = direction if type(direction) == list else [direction]  # this makes sure direction is always a list
-            explored[location] = (parent,direction)
-            if problem.isGoalState(location):   #check if goal state
-                path = []
-                while location != start:
-                    location, direction = explored[location]
-                    path = direction + path
-                return path
-            for sLocation, sDirection, sCost in problem.getSuccessors(location):    #add successors
-                newTotalCost = totalCost + sCost #accumulate costs; totalCost refers to totalCost of parent; sCost is 1 (in normal search)
-                dataStructure.push((sLocation, sDirection, newTotalCost, location))
+        state, direction, totalCost, parent = dataStructure.pop()
 
-    print("Error: There is no goal")
+        if state not in explored:
+            explored[state] = (parent,direction)
+
+            if problem.isGoalState(state):   #check if goal state
+                path = []
+                while state != startState:
+                    state, direction = explored[state]
+                    path = [direction] + path
+                return path
+
+            for sState, sDirection, sCost in problem.getSuccessors(state):    #add successors
+                newTotalCost = totalCost + sCost #accumulate costs; totalCost refers to totalCost of parent; sCost is 1 (in normal search)
+                dataStructure.push((sState, sDirection, newTotalCost, state))
+
+
+
+    print("could not find goal")
     return []
 
 

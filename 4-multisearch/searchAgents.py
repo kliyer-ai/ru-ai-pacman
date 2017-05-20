@@ -68,20 +68,20 @@ class CornersProblem(search.SearchProblem):
             if not startingGameState.hasFood(*corner):
                 print(('Warning: no food in corner ' + str(corner)))
         self._expanded = 0  # Number of search nodes expanded
+        self.state = (self.startingPosition, self.corners)
 
         "*** YOUR CODE HERE ***"
 
     def getStartState(self):
         "Returns the start state (in your state space, not the full Pacman state space)"
         "*** YOUR CODE HERE ***"
-        return (self.startingPosition, self.corners)
+        return self.state
 
     def isGoalState(self, state):
         "Returns whether this search state is a goal state of the problem"
         "*** YOUR CODE HERE ***"
-        test = list(self.corners)
-        print(test)
-        return not test
+        location, corners = state
+        return not corners
 
     def getSuccessors(self, state):
         """
@@ -94,24 +94,29 @@ class CornersProblem(search.SearchProblem):
          required to get there, and 'stepCost' is the incremental
          cost of expanding to that successor
         """
-
-
-
         successors = []
         for action in [Directions.NORTH, Directions.SOUTH,
                        Directions.EAST, Directions.WEST]:
-            x, y = state
+            location, corners = state
+            x,y = location
             dx, dy = Actions.directionToVector(action)
-            nextx, nexty = int(x + dx), int(y + dy)
-
-            corners = list(self.corners)
-            if (nextx,nexty) in corners:
-                corners.remove((nextx,nexty))
-                self.corners = tuple(corners)
+            nextx, nexty = (int(x + dx), int(y + dy))
 
             if not self.walls[nextx][nexty]:
-                nextState = (nextx, nexty)
+                nextLocation = (nextx, nexty)
+
+                if nextLocation in corners:
+                    corners = list(corners)
+                    corners.remove(nextLocation)
+                    corners = tuple(corners)
+
+                nextState = (nextLocation, corners)
                 successors.append((nextState, action, 1))
+
+
+
+
+
 
         # Bookkeeping for display purposes
         self._expanded += 1
