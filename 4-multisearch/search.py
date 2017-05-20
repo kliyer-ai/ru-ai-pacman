@@ -75,7 +75,10 @@ def findGoal(problem, dataStructure):
 
 
     for sState, sDirection,sCost in problem.getSuccessors(startState):
-        dataStructure.push((sState, sDirection, sCost, startState)) # tuple of state, direction, total accumulated cost and parent
+        directions = []
+        for _ in range(sCost):
+            directions.append(sDirection)
+        dataStructure.push((sState, directions, sCost, startState)) # tuple of state, direction, total accumulated cost and parent
 
     while not dataStructure.isEmpty():
         state, direction, totalCost, parent = dataStructure.pop()
@@ -92,7 +95,12 @@ def findGoal(problem, dataStructure):
 
             for sState, sDirection, sCost in problem.getSuccessors(state):    #add successors
                 newTotalCost = totalCost + sCost #accumulate costs; totalCost refers to totalCost of parent; sCost is 1 (in normal search)
-                dataStructure.push((sState, sDirection, newTotalCost, state))
+
+                directions = []
+                for _ in range(sCost):
+                    directions.append(sDirection)
+                print(directions)
+                dataStructure.push((sState, directions, newTotalCost, state))
 
 
 
@@ -143,7 +151,8 @@ def aStarSearch(problem, heuristic=nullHeuristic):
     "Search the node that has the lowest combined cost and heuristic first."
 
     "*** YOUR CODE HERE ***"
-    pQWF = util.PriorityQueueWithFunction(lambda item: heuristic(item, problem))
+                                         #item[2] refers to totalCost      item[0] refers to state
+    pQWF = util.PriorityQueueWithFunction(lambda item: item[2] + heuristic(item[0], problem))
     return findGoal(problem, pQWF)
 
     "Bonus assignment: Adjust the getSuccessors() method in CrossroadSearchAgent class"

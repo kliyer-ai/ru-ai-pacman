@@ -113,7 +113,6 @@ class CornersProblem(search.SearchProblem):
                        Directions.EAST, Directions.WEST]:
             location, corners = state
             cost = 0
-            actions = []
             x,y = location
             dx, dy = Actions.directionToVector(action)
 
@@ -121,7 +120,6 @@ class CornersProblem(search.SearchProblem):
             nextLocation = ()
             while not self.walls[nextx][nexty]: #this is basically a really simple search with O(n) complexity
                 cost+=1
-                actions.append(action)
                 nextLocation = (nextx, nexty)
                 if crossroad(nextLocation):
                     break
@@ -134,7 +132,7 @@ class CornersProblem(search.SearchProblem):
                     corners.remove(nextLocation)
                     corners = tuple(corners)
                 nextState = (nextLocation, corners)
-                successors.append((nextState, actions, cost))
+                successors.append((nextState, action, cost))
 
 
 
@@ -159,7 +157,7 @@ class CornersProblem(search.SearchProblem):
         return len(actions)
 
 
-def cornersHeuristic(item, problem):
+def cornersHeuristic(state, problem):
     """
     A heuristic for the CornersProblem that you defined.
 
@@ -178,11 +176,18 @@ def cornersHeuristic(item, problem):
     walls = problem.walls
 
     "*** YOUR CODE HERE ***"
-    state, direction, totalCost, parent = item
-    return totalCost
+    location, corners = state
+
+    heurisitc = 0
+    for corner in corners:
+        dx = abs(location[0]-corner[0])
+        dy = abs(location[1]-corner[1])
+        heurisitc+= max(dx,dy)
+
+    return heurisitc
 
 
-def foodHeuristic(state, problem):
+def foodHeuristic(item, problem):
     """
     Your heuristic for the FoodSearchProblem goes here.
 
@@ -207,7 +212,6 @@ def foodHeuristic(state, problem):
       problem.heuristicInfo['wallCount'] = problem.walls.count()
     Subsequent calls to this heuristic can access problem.heuristicInfo['wallCount']
     """
-    position, foodGrid = state
     "*** YOUR CODE HERE ***"
     return 0
 
