@@ -87,7 +87,7 @@ def findGoal(problem, dataStructure):
                 path = []
                 while state != startState:
                     state, direction = explored[state]
-                    path = [direction] + path
+                    path = direction + path
                 return path
 
             for sState, sDirection, sCost in problem.getSuccessors(state):    #add successors

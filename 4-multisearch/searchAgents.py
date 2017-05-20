@@ -94,6 +94,20 @@ class CornersProblem(search.SearchProblem):
          required to get there, and 'stepCost' is the incremental
          cost of expanding to that successor
         """
+        def crossroad(location):
+            x,y = location
+            i = 0
+            for action in [Directions.NORTH, Directions.SOUTH,
+                           Directions.EAST, Directions.WEST]:
+
+                dx, dy = Actions.directionToVector(action)
+                nextx, nexty = int(x + dx), int(y + dy)
+                if not self.walls[nextx][nexty]:
+                    i += 1
+            return i > 2
+
+
+
         successors = []
         for action in [Directions.NORTH, Directions.SOUTH,
                        Directions.EAST, Directions.WEST]:
@@ -102,19 +116,26 @@ class CornersProblem(search.SearchProblem):
             dx, dy = Actions.directionToVector(action)
             nextx, nexty = (int(x + dx), int(y + dy))
 
-            if not self.walls[nextx][nexty]:
-                nextLocation = (nextx, nexty)
 
+            cost = 0
+            actions = []
+            nextLocation = ()
+            while not self.walls[nextx][nexty]:
+                cost+=1
+                actions.append(action)
+                nextLocation = (nextx, nexty)
+                if crossroad(nextLocation):
+                    break
+                nextx, nexty = (int(nextx + dx), int(nexty + dy))
+
+
+            if cost > 0:
                 if nextLocation in corners:
                     corners = list(corners)
                     corners.remove(nextLocation)
                     corners = tuple(corners)
-
                 nextState = (nextLocation, corners)
-                successors.append((nextState, action, 1))
-
-
-
+                successors.append((nextState, actions, cost))
 
 
 
