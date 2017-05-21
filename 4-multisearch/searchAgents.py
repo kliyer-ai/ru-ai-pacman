@@ -94,6 +94,7 @@ class CornersProblem(search.SearchProblem):
          required to get there, and 'stepCost' is the incremental
          cost of expanding to that successor
         """
+        """
         def crossroad(location):
             x,y = location
             i = 0
@@ -118,9 +119,11 @@ class CornersProblem(search.SearchProblem):
 
             nextx, nexty = (int(x + dx), int(y + dy))
             nextLocation = ()
+            actions = []
             while not self.walls[nextx][nexty]: #this is basically a really simple search with O(n) complexity
                 cost+=1
                 nextLocation = (nextx, nexty)
+                actions.append(action)
                 if crossroad(nextLocation):
                     break
                 nextx, nexty = (int(nextx + dx), int(nexty + dy))
@@ -132,8 +135,25 @@ class CornersProblem(search.SearchProblem):
                     corners.remove(nextLocation)
                     corners = tuple(corners)
                 nextState = (nextLocation, corners)
-                successors.append((nextState, action, cost))
+                successors.append((nextState, actions, cost))
 
+
+        """
+        successors = []
+        for action in [Directions.NORTH, Directions.SOUTH,
+                       Directions.EAST, Directions.WEST]:
+            location, corners = state
+            x, y = location
+            dx, dy = Actions.directionToVector(action)
+            nextx, nexty = int(x + dx), int(y + dy)
+            if not self.walls[nextx][nexty]:
+                nextLocation = (nextx, nexty)
+                if nextLocation in corners:
+                    corners = list(corners)
+                    corners.remove(nextLocation)
+                    corners = tuple(corners)
+                nextState = (nextLocation, corners)
+                successors.append((nextState, action, 1))
 
 
         # Bookkeeping for display purposes
@@ -183,11 +203,10 @@ def cornersHeuristic(state, problem):
         dx = abs(location[0]-corner[0])
         dy = abs(location[1]-corner[1])
         heurisitc+= max(dx,dy)
-
     return heurisitc
 
 
-def foodHeuristic(item, problem):
+def foodHeuristic(state, problem):
     """
     Your heuristic for the FoodSearchProblem goes here.
 

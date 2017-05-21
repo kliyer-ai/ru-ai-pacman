@@ -71,36 +71,28 @@ def tinyMazeSearch(problem):
 
 def findGoal(problem, dataStructure):
     startState = problem.getStartState()
-    explored = {startState: (None,None)}   #dictionary that hold parent and direction for each explored ndoe
-
-
-    for sState, sDirection,sCost in problem.getSuccessors(startState):
-        directions = []
-        for _ in range(sCost):
-            directions.append(sDirection)
-        dataStructure.push((sState, directions, sCost, startState)) # tuple of state, direction, total accumulated cost and parent
+    explored = {}   #dictionary that will hold parent and direction for each explored node and cost
+    dataStructure.push((startState, None, 0, None))
 
     while not dataStructure.isEmpty():
         state, direction, totalCost, parent = dataStructure.pop()
 
-        if state not in explored:
-            explored[state] = (parent,direction)
+        if state in explored and explored[state][2] <= totalCost:
+            continue
+        else:
+            explored[state] = (parent,direction, totalCost)
 
             if problem.isGoalState(state):   #check if goal state
                 path = []
                 while state != startState:
-                    state, direction = explored[state]
-                    path = direction + path
+                    state, direction, _ = explored[state]
+                    #direction = direction if type(direction)==list else [direction]
+                    path = [direction] + path
                 return path
 
             for sState, sDirection, sCost in problem.getSuccessors(state):    #add successors
-                newTotalCost = totalCost + sCost #accumulate costs; totalCost refers to totalCost of parent; sCost is 1 (in normal search)
-
-                directions = []
-                for _ in range(sCost):
-                    directions.append(sDirection)
-                print(directions)
-                dataStructure.push((sState, directions, newTotalCost, state))
+                totalCost = totalCost + sCost #accumulate costs; totalCost refers to totalCost of parent; sCost is 1 (in normal search)
+                dataStructure.push((sState, sDirection, totalCost, state))
 
 
 
@@ -152,7 +144,7 @@ def aStarSearch(problem, heuristic=nullHeuristic):
 
     "*** YOUR CODE HERE ***"
                                          #item[2] refers to totalCost      item[0] refers to state
-    pQWF = util.PriorityQueueWithFunction(lambda item: item[2] + heuristic(item[0], problem))
+    pQWF = util.PriorityQueueWithFunction(lambda item: 1)#item[2])# + heuristic(item[0], problem))
     return findGoal(problem, pQWF)
 
     "Bonus assignment: Adjust the getSuccessors() method in CrossroadSearchAgent class"
