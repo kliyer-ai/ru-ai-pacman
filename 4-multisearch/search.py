@@ -70,32 +70,37 @@ def tinyMazeSearch(problem):
 
 
 def findGoal(problem, dataStructure):
-    start, corners = problem.getStartState()
-    explored = {}   #dictionary that hold parent and direction for each explored ndoe
-
-    if problem.isGoalState(start):
-        return []
-
-    dataStructure.push((start, corners, None, 0, None)) # tuple of location, direction, cost of exploring, total accumulated cost and parent
+    startState = problem.getStartState()
+    explored = {}   #dictionary that will hold parent and direction for each explored node and cost
+    dataStructure.push((startState, None, 0, None))
 
     while not dataStructure.isEmpty():
-        state, corners, action, totalCost, parent = dataStructure.pop()
-        l = (state, corners)
-        if state not in explored:
-            # direction = direction if type(direction) == list else [direction]  # this makes sure direction is always a list
-            explored[l] = (parent,action)
-            if problem.isGoalState(l):   #check if goal state
+        state, direction, totalCost, parent = dataStructure.pop()
+
+        if state in explored and explored[state][2] <= totalCost:
+            continue
+        else:
+            explored[state] = (parent,direction, totalCost)
+
+            if problem.isGoalState(state):   #check if goal state
                 path = []
-                while location != start:
-                    location, direction = explored[location]
-                    path = direction + path
+                while state != startState:
+                    state, direction, _ = explored[state]
+                    #direction = direction if type(direction)==list else [direction]
+                    path = [direction] + path
                 return path
-            else:
 
-                for state, corners, action, cost in problem.getSuccessors(l):    #add successors
-                    dataStructure.push((state, corners, action, totalCost + cost, parent)) #accumulate costs; totalCost refers to totalCost of parent; sCost is 1 (in normal search)
+            for successor in problem.getSuccessors(state):
+                # print "Successors :", successor
+                # add to fringe, but only if not yet visited
+                succState, action, actcost = successor
+                succcost = totalCost + actcost
+                if succState not in explored or explored[succState][2] > succcost:
+                    dataStructure.push((succState, action, succcost, state))
 
-    print("Error: There is no goal")
+
+
+    print("could not find goal")
     return []
 
 
@@ -140,9 +145,10 @@ def nullHeuristic(state, problem=None):
 
 def aStarSearch(problem, heuristic=nullHeuristic):
     "Search the node that has the lowest combined cost and heuristic first."
-
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+                                         #item[2] refers to totalCost      item[0] refers to state
+    pQWF = util.PriorityQueueWithFunction(lambda item: item[2] + heuristic(item[0], problem))
+    return findGoal(problem, pQWF)
 
     "Bonus assignment: Adjust the getSuccessors() method in CrossroadSearchAgent class"
     "in searchAgents.py and test with:"
