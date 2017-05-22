@@ -71,27 +71,29 @@ def tinyMazeSearch(problem):
 
 def findGoal(problem, dataStructure):
     start, corners = problem.getStartState()
-    explored = {start: (None,[])}   #dictionary that hold parent and direction for each explored ndoe
+    explored = {}   #dictionary that hold parent and direction for each explored ndoe
 
     if problem.isGoalState(start):
         return []
-    for sLocation, sDirection,sCost in problem.getSuccessors(start):
-        dataStructure.push((sLocation, sDirection, sCost, start)) # tuple of location, direction, cost of exploring, total accumulated cost and parent
+
+    dataStructure.push((start, corners, None, 0, None)) # tuple of location, direction, cost of exploring, total accumulated cost and parent
 
     while not dataStructure.isEmpty():
-        location, direction, totalCost, parent = dataStructure.pop()
-        if location not in explored:
-            direction = direction if type(direction) == list else [direction]  # this makes sure direction is always a list
-            explored[location] = (parent,direction)
-            if problem.isGoalState(location):   #check if goal state
+        state, corners, action, totalCost, parent = dataStructure.pop()
+        l = (state, corners)
+        if state not in explored:
+            # direction = direction if type(direction) == list else [direction]  # this makes sure direction is always a list
+            explored[l] = (parent,action)
+            if problem.isGoalState(l):   #check if goal state
                 path = []
                 while location != start:
                     location, direction = explored[location]
                     path = direction + path
                 return path
-            for sLocation, sDirection, sCost in problem.getSuccessors(location):    #add successors
-                newTotalCost = totalCost + sCost #accumulate costs; totalCost refers to totalCost of parent; sCost is 1 (in normal search)
-                dataStructure.push((sLocation, sDirection, newTotalCost, location))
+            else:
+
+                for state, corners, action, cost in problem.getSuccessors(l):    #add successors
+                    dataStructure.push((state, corners, action, totalCost + cost, parent)) #accumulate costs; totalCost refers to totalCost of parent; sCost is 1 (in normal search)
 
     print("Error: There is no goal")
     return []
