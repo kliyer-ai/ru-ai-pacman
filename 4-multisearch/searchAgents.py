@@ -31,7 +31,7 @@ Good luck and happy searching!
 
 from existingSearchAgents import *
 from existingSearchAgents import SearchAgent
-
+import search
 '''#################################################
 
     This file contains mostly functions that you
@@ -68,7 +68,8 @@ class CornersProblem(search.SearchProblem):
             if not startingGameState.hasFood(*corner):
                 print(('Warning: no food in corner ' + str(corner)))
         self._expanded = 0  # Number of search nodes expanded
-        self.state = (self.startingPosition,self.corners)
+        self.state = (self.startingPosition, self.corners)
+
         "*** YOUR CODE HERE ***"
 
     def getStartState(self):
@@ -93,23 +94,23 @@ class CornersProblem(search.SearchProblem):
          required to get there, and 'stepCost' is the incremental
          cost of expanding to that successor
         """
+
         successors = []
         for action in [Directions.NORTH, Directions.SOUTH,
                        Directions.EAST, Directions.WEST]:
-            print (state)
             location, corners = state
             x, y = location
             dx, dy = Actions.directionToVector(action)
             nextx, nexty = int(x + dx), int(y + dy)
-
             if not self.walls[nextx][nexty]:
-                nextState = (nextx, nexty)
-                if (nextx, nexty) in corners:
-                    tempV = list(corners)
-                    tempV.remove(nextState)
-                    corners = tuple(tempV)
-                successors.append((nextState,corners, action, 1))
-
+                nextLocation = (nextx, nexty)
+                if nextLocation in corners:
+                    corners = list(corners)
+                    print (corners)
+                    corners.remove(nextLocation)
+                    corners = tuple(corners)
+                nextState = (nextLocation, corners)
+                successors.append((nextState, action, 1))
         # Bookkeeping for display purposes
         self._expanded += 1
 
@@ -145,15 +146,20 @@ def cornersHeuristic(state, problem):
     it should be admissible.  (You need not worry about consistency for
     this heuristic to receive full credit.)
     """
-    corners = problem.corners  # These are the corner coordinates
     # These are the walls of the maze, as a Grid (game.py)
     walls = problem.walls
 
     "*** YOUR CODE HERE ***"
-    return 0  # Default to trivial solution
+    location, corners = state
+    if not corners:
+        return 0
+    distance = list(map(lambda corner: util.manhattanDistance(location, corner), corners))
+    return min(distance)
 
 
 def foodHeuristic(state, problem):
+
+
     """
     Your heuristic for the FoodSearchProblem goes here.
 
@@ -178,10 +184,38 @@ def foodHeuristic(state, problem):
       problem.heuristicInfo['wallCount'] = problem.walls.count()
     Subsequent calls to this heuristic can access problem.heuristicInfo['wallCount']
     """
-    position, foodGrid = state
-    "*** YOUR CODE HERE ***"
-    return 0
 
+
+    ## With : null hurestic
+    # Path found with total cost of 60 in 3.3 seconds
+    # Search nodes expanded: 18535
+
+    ## With : manhattan hurestic (state - food grid)
+    # Path found with total cost of 60 in 6.8 seconds
+    # Search nodes expanded: 15658
+
+    ## With : distance between closest food_pos and pacman position + not closesy
+    # These are the walls of the maze, as a Grid (game.py)
+    # walls = problem.walls
+    # problem.heuristicInfo['foodAte'] = problem.food.
+
+    position, foodGrid = state
+
+    fGl = foodGrid.asList()
+    # fGl = problem.heuristicInfo['foodGrid'].asList()
+    distanceBetweenPacmanAndClosestFood = 0
+    shareRoworColoum = (list(filter(lambda foodPosition : (foodPosition[0] == position[0] or foodPosition[1] == position[1]), fGl)))
+
+    if shareRoworColoum:
+        distanceBetweenPacmanAndClosestFood = sum(list(map(lambda food:absDistance(position, food), shareRoworColoum)))/len(shareRoworColoum)
+
+    h = len(fGl) - len(shareRoworColoum) + distanceBetweenPacmanAndClosestFood
+
+    return h
+
+def absDistance(xy1, xy2):
+    "Returns the Manhattan distance between points xy1 and xy2"
+    return math.sqrt((xy1[0] - xy2[0])**2) + math.sqrt((xy1[1] - xy2[1])**2)
 
 class ClosestDotSearchAgent(SearchAgent):
     "Search for all food using a sequence of searches"
@@ -212,9 +246,7 @@ class ClosestDotSearchAgent(SearchAgent):
         walls = gameState.getWalls()
         problem = AnyFoodSearchProblem(gameState)
 
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
-
+        return problem.findGoal()
 
 class AnyFoodSearchProblem(PositionSearchProblem):
     """
@@ -248,10 +280,10 @@ class AnyFoodSearchProblem(PositionSearchProblem):
         that will complete the problem definition.
         """
         x, y = state
+        return self.food[x][y]
 
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
-
+    def findGoal(self):
+        return search.astar(self)
 
 class CrossroadSearchAgent(SearchAgent):
 
@@ -267,16 +299,16 @@ class CrossroadSearchAgent(SearchAgent):
          cost of expanding to that successor
         """
 
-        successors = []
-        for action in [Directions.NORTH, Directions.SOUTH,
-                       Directions.EAST, Directions.WEST]:
+        # successors = []
+        # for action in [Directions.NORTH, Directions.SOUTH,
+        #                Directions.EAST, Directions.WEST]:
             # Add a successor state to the successor list if the action is legal
             # Here's a code snippet for figuring out whether a new position hits a wall:
             #   x,y = currentPosition
             #   dx, dy = Actions.directionToVector(action)
             #   nextx, nexty = int(x + dx), int(y + dy)
             #   hitsWall = self.walls[nextx][nexty]
-            1
+
 
         # Bookkeeping for display purposes
         self._expanded += 1
@@ -295,7 +327,7 @@ class ApproximateSearchAgent(Agent):
 
     def registerInitialState(self, state):
         "This method is called before any moves are made."
-        "*** YOUR CODE HERE ***"
+        
 
     def getAction(self, state):
         """
@@ -323,3 +355,4 @@ class AStarFoodSearchAgent(SearchAgent):
         self.searchFunction = lambda prob: search.aStarSearch(
             prob, foodHeuristic)
         self.searchType = FoodSearchProblem
+
