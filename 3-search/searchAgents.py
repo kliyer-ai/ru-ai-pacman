@@ -292,9 +292,6 @@ class CrossroadSearchProblem(PositionSearchProblem):
             if cost > 0:
                 successors.append(((x,y),directions,cost))
 
-
-
-
         # Bookkeeping for display purposes
         self._expanded += 1
 
