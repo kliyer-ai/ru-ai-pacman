@@ -91,8 +91,9 @@ def findGoal(problem, dataStructure):
                 return path
 
             for sState, sDirection, sCost in problem.getSuccessors(state):    #add successors
-                totalCost = totalCost + sCost #accumulate costs; totalCost refers to totalCost of parent; sCost is 1 (in normal search)
-                dataStructure.push((sState, sDirection, totalCost, state))
+                totalCost+=sCost #accumulate costs; totalCost refers to totalCost of parent; sCost is 1 (in normal search)
+                if sState not in explored or explored[sState][2] > totalCost:
+                    dataStructure.push((sState, sDirection, totalCost, state))
 
 
 
@@ -144,7 +145,7 @@ def aStarSearch(problem, heuristic=nullHeuristic):
 
     "*** YOUR CODE HERE ***"
                                          #item[2] refers to totalCost      item[0] refers to state
-    pQWF = util.PriorityQueueWithFunction(lambda item: 1)#item[2])# + heuristic(item[0], problem))
+    pQWF = util.PriorityQueueWithFunction(lambda item: item[2] + heuristic(item[0], problem))
     return findGoal(problem, pQWF)
 
     "Bonus assignment: Adjust the getSuccessors() method in CrossroadSearchAgent class"

@@ -202,7 +202,7 @@ def cornersHeuristic(state, problem):
     for corner in corners:
         dx = abs(location[0]-corner[0])
         dy = abs(location[1]-corner[1])
-        heurisitc+= max(dx,dy)
+        heurisitc+= min(dx,dy)
     return heurisitc
 
 
