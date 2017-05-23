@@ -32,6 +32,7 @@ Good luck and happy searching!
 from existingSearchAgents import *
 from existingSearchAgents import SearchAgent
 import search
+import math
 '''#################################################
 
     This file contains mostly functions that you
@@ -82,6 +83,8 @@ class CornersProblem(search.SearchProblem):
         "*** YOUR CODE HERE ***"
         location, corners = state
         return not corners
+
+
 
     def getSuccessors(self, state):
         """
@@ -197,7 +200,7 @@ def foodHeuristic(state, problem):
     ## With : distance between closest food_pos and pacman position + not closesy
     # These are the walls of the maze, as a Grid (game.py)
     # walls = problem.walls
-    # problem.heuristicInfo['foodAte'] = problem.food.
+
 
     position, foodGrid = state
 
@@ -205,6 +208,7 @@ def foodHeuristic(state, problem):
     # fGl = problem.heuristicInfo['foodGrid'].asList()
     distanceBetweenPacmanAndClosestFood = 0
     shareRoworColoum = (list(filter(lambda foodPosition : (foodPosition[0] == position[0] or foodPosition[1] == position[1]), fGl)))
+    # problem.heuristicInfo['foodAte'] += len(shareRoworColoum)
 
     if shareRoworColoum:
         distanceBetweenPacmanAndClosestFood = sum(list(map(lambda food:absDistance(position, food), shareRoworColoum)))/len(shareRoworColoum)
