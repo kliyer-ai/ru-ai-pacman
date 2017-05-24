@@ -97,7 +97,7 @@ def findGoal(problem, dataStructure):
 
     if problem.isGoalState(start):
         return []
-    for sLocation, sDirection,sCost in problem.getSuccessors(start):
+    for sLocation, sDirection, sCost in problem.getSuccessors(start):
         dataStructure.push((sLocation, sDirection, sCost, start)) # tuple of location, direction, cost of exploring, total accumulated cost and parent
 
     while not dataStructure.isEmpty():
