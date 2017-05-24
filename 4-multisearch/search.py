@@ -86,14 +86,13 @@ def findGoal(problem, dataStructure):
                 path = []
                 while state != startState:
                     state, direction, _ = explored[state]
-                    #direction = direction if type(direction)==list else [direction]
-                    path = [direction] + path
+                    direction = direction if type(direction)==list else [direction]
+                    path = direction + path
                 return path
 
             for sState, sDirection, sCost in problem.getSuccessors(state):    #add successors
-                totalCost+=sCost #accumulate costs; totalCost refers to totalCost of parent; sCost is 1 (in normal search)
                 if sState not in explored or explored[sState][2] > totalCost:
-                    dataStructure.push((sState, sDirection, totalCost, state))
+                    dataStructure.push((sState, sDirection, totalCost+sCost, state))
 
 
 

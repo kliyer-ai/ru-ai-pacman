@@ -94,7 +94,7 @@ class CornersProblem(search.SearchProblem):
          required to get there, and 'stepCost' is the incremental
          cost of expanding to that successor
         """
-        """
+
         def crossroad(location):
             x,y = location
             i = 0
@@ -137,8 +137,8 @@ class CornersProblem(search.SearchProblem):
                 nextState = (nextLocation, corners)
                 successors.append((nextState, actions, cost))
 
-
         """
+        
         successors = []
         for action in [Directions.NORTH, Directions.SOUTH,
                        Directions.EAST, Directions.WEST]:
@@ -154,7 +154,7 @@ class CornersProblem(search.SearchProblem):
                     corners = tuple(corners)
                 nextState = (nextLocation, corners)
                 successors.append((nextState, action, 1))
-
+        """
 
         # Bookkeeping for display purposes
         self._expanded += 1
@@ -197,13 +197,18 @@ def cornersHeuristic(state, problem):
 
     "*** YOUR CODE HERE ***"
     location, corners = state
+    if len(corners)==0:
+        return 0
 
-    heurisitc = 0
-    for corner in corners:
-        dx = abs(location[0]-corner[0])
-        dy = abs(location[1]-corner[1])
-        heurisitc+= min(dx,dy)
-    return heurisitc
+
+    manhattanDistance =abs(location[0] - corners[0][0])+abs(location[1] - corners[0][1])
+    for corner in corners[1:]:
+        cManhattanDistance = abs(location[0] - corner[0])+abs(location[1] - corner[1])
+        if cManhattanDistance < manhattanDistance:
+            manhattanDistance = cManhattanDistance
+
+
+    return manhattanDistance + len(corners)
 
 
 def foodHeuristic(state, problem):
@@ -232,7 +237,8 @@ def foodHeuristic(state, problem):
     Subsequent calls to this heuristic can access problem.heuristicInfo['wallCount']
     """
     "*** YOUR CODE HERE ***"
-    return 0
+    location, foodGrid = state
+    return foodGrid.count(True)
 
 
 class ClosestDotSearchAgent(SearchAgent):
