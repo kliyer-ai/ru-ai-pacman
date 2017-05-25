@@ -238,7 +238,36 @@ def foodHeuristic(state, problem):
     """
     "*** YOUR CODE HERE ***"
     location, foodGrid = state
-    return foodGrid.count(True)
+
+    #walls = problem.walls.asList()
+    fGL = foodGrid.asList()
+    if not fGL:
+        return 0
+
+
+    test = 0
+    l = fGL + [location]
+
+    for food in l:
+        x, y = food
+        for action in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
+            dx, dy = Actions.directionToVector(action)
+            neighbourFood = (int(x + dx), int(y + dy))
+            if neighbourFood in l:
+                break
+        else:
+            test+=1
+
+
+    size = 1
+    count = 0
+    for x in range(location[0]-size, location[0]+size+1):
+        for y in range(location[1]-size, location[1]+size+1):
+            if (x,y) in fGL:
+                count+=1
+
+
+    return test#len(fGL) + test #- count
 
 
 class ClosestDotSearchAgent(SearchAgent):
