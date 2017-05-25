@@ -246,17 +246,19 @@ def foodHeuristic(state, problem):
 
 
     test = 0
-    l = fGL + [location]
+    l = fGL
 
     for food in l:
         x, y = food
-        for action in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
-            dx, dy = Actions.directionToVector(action)
-            neighbourFood = (int(x + dx), int(y + dy))
+        for dx, dy in [(-1,-1),(-1,0),(-1,1),(0,-1),(0,1),(1,-1),(1,0),(1,1)]:
+            neighbourFood = ((x + dx), (y + dy))
             if neighbourFood in l:
                 break
         else:
             test+=1
+
+    minFood = min(fGL, key= lambda food: util.manhattanDistance(food, location))
+    maxFood = max(fGL, key= lambda food: util.manhattanDistance(food, location))
 
 
     size = 1
@@ -267,7 +269,11 @@ def foodHeuristic(state, problem):
                 count+=1
 
 
-    return test#len(fGL) + test #- count
+
+    #+ util.manhattanDistance(location, minFood)
+    #util.manhattanDistance(minFood,maxFood)
+
+    return util.manhattanDistance(minFood,maxFood) + util.manhattanDistance(location,minFood) #+ test
 
 
 class ClosestDotSearchAgent(SearchAgent):
