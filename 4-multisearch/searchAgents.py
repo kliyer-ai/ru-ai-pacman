@@ -94,7 +94,7 @@ class CornersProblem(search.SearchProblem):
          required to get there, and 'stepCost' is the incremental
          cost of expanding to that successor
         """
-
+        """
         def crossroad(location):
             x,y = location
             i = 0
@@ -154,7 +154,7 @@ class CornersProblem(search.SearchProblem):
                     corners = tuple(corners)
                 nextState = (nextLocation, corners)
                 successors.append((nextState, action, 1))
-        """
+
 
         # Bookkeeping for display purposes
         self._expanded += 1
@@ -191,24 +191,22 @@ def cornersHeuristic(state, problem):
     it should be admissible.  (You need not worry about consistency for
     this heuristic to receive full credit.)
     """
-    corners = problem.corners  # These are the corner coordinates
+    # These are the corner coordinates
     # These are the walls of the maze, as a Grid (game.py)
-    walls = problem.walls
+
 
     "*** YOUR CODE HERE ***"
     location, corners = state
-    if len(corners)==0:
+    walls = problem.walls.asList()
+
+    if not corners:
         return 0
 
-
-    manhattanDistance =abs(location[0] - corners[0][0])+abs(location[1] - corners[0][1])
-    for corner in corners[1:]:
-        cManhattanDistance = abs(location[0] - corner[0])+abs(location[1] - corner[1])
-        if cManhattanDistance < manhattanDistance:
-            manhattanDistance = cManhattanDistance
+    minCorner = min(corners, key=lambda corner: util.manhattanDistance(corner, location))
+    maxCorner = max(corners, key=lambda corner: util.manhattanDistance(corner, location))
 
 
-    return manhattanDistance + len(corners)
+    return util.manhattanDistance(location, minCorner) + util.manhattanDistance(location,maxCorner)
 
 
 def foodHeuristic(state, problem):
@@ -238,42 +236,40 @@ def foodHeuristic(state, problem):
     """
     "*** YOUR CODE HERE ***"
     location, foodGrid = state
+    foods = foodGrid.asList()
+    walls = problem.walls.asList()
 
-    #walls = problem.walls.asList()
-    fGL = foodGrid.asList()
-    if not fGL:
+    if not foods:
         return 0
 
+    def checkWalls(p1, p2):
+        pointsX = sorted((p1[0], p2[0]))
+        pointsY = sorted((p1[1], p2[1]))
 
-    test = 0
-    l = fGL
-
-    for food in l:
-        x, y = food
-        for dx, dy in [(-1,-1),(-1,0),(-1,1),(0,-1),(0,1),(1,-1),(1,0),(1,1)]:
-            neighbourFood = ((x + dx), (y + dy))
-            if neighbourFood in l:
+        xWall = 0
+        for y in range(pointsY[0], pointsY[1] + 1):
+            for x in range(pointsX[0], pointsX[1] + 1):
+                if (x, y) not in walls:
+                    break
+            else:
+                xWall = 2
                 break
-        else:
-            test+=1
 
-    minFood = min(fGL, key= lambda food: util.manhattanDistance(food, location))
-    maxFood = max(fGL, key= lambda food: util.manhattanDistance(food, location))
+        yWall = 0
+        for x in range(pointsX[0], pointsX[1] + 1):
+            for y in range(pointsY[0], pointsY[1] + 1):
+                if (x, y) not in walls:
+                    break
+            else:
+                yWall = 2
+                break
 
+        return xWall + yWall
 
-    size = 1
-    count = 0
-    for x in range(location[0]-size, location[0]+size+1):
-        for y in range(location[1]-size, location[1]+size+1):
-            if (x,y) in fGL:
-                count+=1
+    minFood = min(foods, key= lambda food: util.manhattanDistance(food, location))
+    maxFood = max(foods, key= lambda food: util.manhattanDistance(food, location))
 
-
-
-    #+ util.manhattanDistance(location, minFood)
-    #util.manhattanDistance(minFood,maxFood)
-
-    return util.manhattanDistance(minFood,maxFood) + util.manhattanDistance(location,minFood) #+ test
+    return util.manhattanDistance(minFood,maxFood) + util.manhattanDistance(location,minFood) + checkWalls(location,minFood) + checkWalls(minFood,maxFood)
 
 
 class ClosestDotSearchAgent(SearchAgent):
@@ -306,7 +302,7 @@ class ClosestDotSearchAgent(SearchAgent):
         problem = AnyFoodSearchProblem(gameState)
 
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        return search.aStarSearch(problem)
 
 
 class AnyFoodSearchProblem(PositionSearchProblem):
@@ -343,7 +339,7 @@ class AnyFoodSearchProblem(PositionSearchProblem):
         x, y = state
 
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        return self.food[x][y]
 
 
 class CrossroadSearchAgent(SearchAgent):
