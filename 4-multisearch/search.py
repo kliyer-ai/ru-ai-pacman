@@ -86,17 +86,13 @@ def findGoal(problem, dataStructure):
                 path = []
                 while state != startState:
                     state, direction, _ = explored[state]
-                    #direction = direction if type(direction)==list else [direction]
-                    path = [direction] + path
+                    direction = direction if type(direction)==list else [direction]
+                    path = direction + path
                 return path
 
-            for successor in problem.getSuccessors(state):
-                # print "Successors :", successor
-                # add to fringe, but only if not yet visited
-                succState, action, actcost = successor
-                succcost = totalCost + actcost
-                if succState not in explored or explored[succState][2] > succcost:
-                    dataStructure.push((succState, action, succcost, state))
+            for sState, sDirection, sCost in problem.getSuccessors(state):    #add successors
+                if sState not in explored or explored[sState][2] > totalCost:
+                    dataStructure.push((sState, sDirection, totalCost+sCost, state))
 
 
 
@@ -145,6 +141,7 @@ def nullHeuristic(state, problem=None):
 
 def aStarSearch(problem, heuristic=nullHeuristic):
     "Search the node that has the lowest combined cost and heuristic first."
+
     "*** YOUR CODE HERE ***"
                                          #item[2] refers to totalCost      item[0] refers to state
     pQWF = util.PriorityQueueWithFunction(lambda item: item[2] + heuristic(item[0], problem))
