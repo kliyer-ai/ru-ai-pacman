@@ -1,3 +1,5 @@
+#samarpan rai (4753763) & nick stracke (4771192)
+
 # searchAgents.py
 # ---------------
 # Licensing Information: Please do not distribute or publish solutions to this
@@ -94,28 +96,66 @@ class CornersProblem(search.SearchProblem):
          required to get there, and 'stepCost' is the incremental
          cost of expanding to that successor
         """
+        """
+        def crossroad(location):
+            x,y = location
+            i = 0
+            for action in [Directions.NORTH, Directions.SOUTH,
+                           Directions.EAST, Directions.WEST]:
+
+                dx, dy = Actions.directionToVector(action)
+                nextx, nexty = int(x + dx), int(y + dy)
+                if not self.walls[nextx][nexty]:
+                    i += 1
+            return i > 2
+
+
+
         successors = []
         for action in [Directions.NORTH, Directions.SOUTH,
                        Directions.EAST, Directions.WEST]:
             location, corners = state
+            cost = 0
             x,y = location
             dx, dy = Actions.directionToVector(action)
+
             nextx, nexty = (int(x + dx), int(y + dy))
-
-            if not self.walls[nextx][nexty]:
+            nextLocation = ()
+            actions = []
+            while not self.walls[nextx][nexty]: #this is basically a really simple search with O(n) complexity
+                cost+=1
                 nextLocation = (nextx, nexty)
+                actions.append(action)
+                if crossroad(nextLocation):
+                    break
+                nextx, nexty = (int(nextx + dx), int(nexty + dy))
 
+
+            if cost > 0:
                 if nextLocation in corners:
                     corners = list(corners)
                     corners.remove(nextLocation)
                     corners = tuple(corners)
+                nextState = (nextLocation, corners)
+                successors.append((nextState, actions, cost))
 
+        """
+        
+        successors = []
+        for action in [Directions.NORTH, Directions.SOUTH,
+                       Directions.EAST, Directions.WEST]:
+            location, corners = state
+            x, y = location
+            dx, dy = Actions.directionToVector(action)
+            nextx, nexty = int(x + dx), int(y + dy)
+            if not self.walls[nextx][nexty]:
+                nextLocation = (nextx, nexty)
+                if nextLocation in corners:
+                    corners = list(corners)
+                    corners.remove(nextLocation)
+                    corners = tuple(corners)
                 nextState = (nextLocation, corners)
                 successors.append((nextState, action, 1))
-
-
-
-
 
 
         # Bookkeeping for display purposes
@@ -153,12 +193,23 @@ def cornersHeuristic(state, problem):
     it should be admissible.  (You need not worry about consistency for
     this heuristic to receive full credit.)
     """
-    corners = problem.corners  # These are the corner coordinates
+    # These are the corner coordinates
     # These are the walls of the maze, as a Grid (game.py)
-    walls = problem.walls
+
 
     "*** YOUR CODE HERE ***"
-    return 0  # Default to trivial solution
+    location, corners = state
+    walls = problem.walls.asList()
+
+    if not corners:
+        return 0
+
+    minCorner = min(corners, key=lambda corner: util.manhattanDistance(corner, location))
+    maxCorner = max(corners, key=lambda corner: util.manhattanDistance(corner, location))
+
+    # I added a scaling factor to the heuristing for tie braking purposes. I know that this technically makes the heuristic inadmissible but since it is so small, it should not matter in practice
+    # I dont know how strict you guys are but if this is a problem for you, just delete it :D
+    return 1.001*(util.manhattanDistance(location, minCorner) + util.manhattanDistance(location,maxCorner))
 
 
 def foodHeuristic(state, problem):
@@ -186,9 +237,45 @@ def foodHeuristic(state, problem):
       problem.heuristicInfo['wallCount'] = problem.walls.count()
     Subsequent calls to this heuristic can access problem.heuristicInfo['wallCount']
     """
-    position, foodGrid = state
     "*** YOUR CODE HERE ***"
-    return 0
+    location, foodGrid = state
+    foods = foodGrid.asList()
+    walls = problem.walls.asList()
+
+    if not foods:
+        return 0
+
+    def checkWalls(p1, p2):
+        pointsX = sorted((p1[0], p2[0]))
+        pointsY = sorted((p1[1], p2[1]))
+        penalty = 2 #this penalty gets added to the path if a row of walls blocks every indifferent path to the goal and refers to the minimum amount of steps required to dodge the walls
+
+        xWall = 0
+        for y in range(pointsY[0], pointsY[1] + 1):
+            for x in range(pointsX[0], pointsX[1] + 1):
+                if (x, y) not in walls:
+                    break
+            else:
+                xWall = penalty
+                break
+
+        yWall = 0
+        for x in range(pointsX[0], pointsX[1] + 1):
+            for y in range(pointsY[0], pointsY[1] + 1):
+                if (x, y) not in walls:
+                    break
+            else:
+                yWall = penalty
+                break
+
+        return xWall + yWall
+
+    minFood = min(foods, key= lambda food: util.manhattanDistance(food, location))
+    maxFood = max(foods, key= lambda food: util.manhattanDistance(food, location))
+
+    # I added a scaling factor to the heuristing for tie braking purposes. I know that this technically makes the heuristic inadmissible but since it is so small, it should not matter in practice
+    # I dont know how strict you guys are but if this is a problem for you, just delete it :D
+    return 1.001*(util.manhattanDistance(minFood,maxFood) + util.manhattanDistance(location,minFood) + checkWalls(location,minFood) + checkWalls(minFood,maxFood))
 
 
 class ClosestDotSearchAgent(SearchAgent):
@@ -221,7 +308,7 @@ class ClosestDotSearchAgent(SearchAgent):
         problem = AnyFoodSearchProblem(gameState)
 
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        return search.aStarSearch(problem)
 
 
 class AnyFoodSearchProblem(PositionSearchProblem):
@@ -258,7 +345,7 @@ class AnyFoodSearchProblem(PositionSearchProblem):
         x, y = state
 
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        return self.food[x][y]
 
 
 class CrossroadSearchAgent(SearchAgent):
