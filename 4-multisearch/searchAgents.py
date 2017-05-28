@@ -1,3 +1,5 @@
+#samarpan rai (4753763) & nick stracke (4771192)
+
 # searchAgents.py
 # ---------------
 # Licensing Information: Please do not distribute or publish solutions to this
