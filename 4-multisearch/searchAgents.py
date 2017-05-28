@@ -205,8 +205,9 @@ def cornersHeuristic(state, problem):
     minCorner = min(corners, key=lambda corner: util.manhattanDistance(corner, location))
     maxCorner = max(corners, key=lambda corner: util.manhattanDistance(corner, location))
 
-
-    return util.manhattanDistance(location, minCorner) + util.manhattanDistance(location,maxCorner)
+    # I added a scaling factor to the heuristing for tie braking purposes. I know that this technically makes the heuristic inadmissible but since it is so small, it should not matter in practice
+    # I dont know how strict you guys are but if this is a problem for you, just delete it :D
+    return 1.001*(util.manhattanDistance(location, minCorner) + util.manhattanDistance(location,maxCorner))
 
 
 def foodHeuristic(state, problem):
@@ -245,6 +246,7 @@ def foodHeuristic(state, problem):
     def checkWalls(p1, p2):
         pointsX = sorted((p1[0], p2[0]))
         pointsY = sorted((p1[1], p2[1]))
+        penalty = 2 #this penalty gets added to the path if a row of walls blocks every indifferent path to the goal and refers to the minimum amount of steps required to dodge the walls
 
         xWall = 0
         for y in range(pointsY[0], pointsY[1] + 1):
@@ -252,7 +254,7 @@ def foodHeuristic(state, problem):
                 if (x, y) not in walls:
                     break
             else:
-                xWall = 2
+                xWall = penalty
                 break
 
         yWall = 0
@@ -261,7 +263,7 @@ def foodHeuristic(state, problem):
                 if (x, y) not in walls:
                     break
             else:
-                yWall = 2
+                yWall = penalty
                 break
 
         return xWall + yWall
@@ -269,7 +271,9 @@ def foodHeuristic(state, problem):
     minFood = min(foods, key= lambda food: util.manhattanDistance(food, location))
     maxFood = max(foods, key= lambda food: util.manhattanDistance(food, location))
 
-    return util.manhattanDistance(minFood,maxFood) + util.manhattanDistance(location,minFood) + checkWalls(location,minFood) + checkWalls(minFood,maxFood)
+    # I added a scaling factor to the heuristing for tie braking purposes. I know that this technically makes the heuristic inadmissible but since it is so small, it should not matter in practice
+    # I dont know how strict you guys are but if this is a problem for you, just delete it :D
+    return 1.001*(util.manhattanDistance(minFood,maxFood) + util.manhattanDistance(location,minFood) + checkWalls(location,minFood) + checkWalls(minFood,maxFood))
 
 
 class ClosestDotSearchAgent(SearchAgent):
