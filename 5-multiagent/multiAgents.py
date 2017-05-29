@@ -61,14 +61,37 @@ class ReflexAgent(Agent):
     to create a masterful evaluation function.
     """
     # Useful information you can extract from a GameState (pacman.py)
+
+    #possible querries
+    #'data', 'deepCopy', 'generatePacmanSuccessor', 'generateSuccessor', 'getCapsules', 'getFood', 'getGhostPosition', 'getGhostPositions', 'getGhostState', 'getGhostStates',
+    # 'getLegalActions', 'getLegalPacmanActions', 'getNumAgents', 'getNumFood', 'getPacmanPosition', 'getPacmanState', 'getScore', 'getWalls', 'hasFood', 'hasWall', 'initialize',
+    # 'isLose', 'isWin'
+
+
     successorGameState = currentGameState.generatePacmanSuccessor(action)
     newPos = successorGameState.getPacmanPosition()
-    oldFood = currentGameState.getFood()
+    newFoods = successorGameState.getFood().asList()
     newGhostStates = successorGameState.getGhostStates()
     newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
+    newGhostPositions = successorGameState.getGhostPositions()
 
-    "*** YOUR CODE HERE ***"
-    return successorGameState.getScore()
+    flag = 0
+
+    closestGhost = min([manhattanDistance(newPos, newGhost) for newGhost in newGhostPositions])
+    closestFood=0
+    if newFoods:
+      closestFood = min([manhattanDistance(newPos, newFood) for newFood in newFoods])
+
+    if closestGhost < 2 and 0 in newScaredTimes:
+      return -9999
+    elif (currentGameState.getNumFood() - successorGameState.getNumFood())==1:
+      return 9999
+    else:
+
+      return -closestFood#successorGameState.getScore()
+
+
+
 
 def scoreEvaluationFunction(currentGameState):
   """
