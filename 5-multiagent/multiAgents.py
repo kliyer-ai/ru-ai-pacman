@@ -75,20 +75,22 @@ class ReflexAgent(Agent):
     newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
     newGhostPositions = successorGameState.getGhostPositions()
 
-    flag = 0
-
     closestGhost = min([manhattanDistance(newPos, newGhost) for newGhost in newGhostPositions])
+    indexGhost = [i for i in range(len(newGhostPositions)) if manhattanDistance(newPos, newGhostPositions[i])==closestGhost]
+
     closestFood=0
     if newFoods:
       closestFood = min([manhattanDistance(newPos, newFood) for newFood in newFoods])
 
-    if closestGhost < 2 and 0 in newScaredTimes:
+
+
+
+    if closestGhost < 2 and newScaredTimes[indexGhost[0]]==0:
       return -9999
     elif (currentGameState.getNumFood() - successorGameState.getNumFood())==1:
       return 9999
     else:
-
-      return -closestFood#successorGameState.getScore()
+      return -closestFood
 
 
 
@@ -148,8 +150,49 @@ class MinimaxAgent(MultiAgentSearchAgent):
       gameState.getNumAgents():
         Returns the total number of agents in the game
     """
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    #http://artint.info/html/ArtInt_240.html
+    score, action = self._maxPlayer(gameState, 1)
+    print(score)
+    return action
+
+
+
+  def _maxPlayer(self, gameState, depth):
+    actions = gameState.getLegalActions(0)
+    bestScore = -9999
+    bestAction = None
+    for action in actions:
+      successorState = gameState.generateSuccessor(0, action)
+
+      if successorState.isWin() or successorState.isLose():
+        successorScore = self.evaluationFunction(successorState)
+      else:
+        successorScore, _ = self._minPlayer(successorState, depth)
+
+      if successorScore > bestScore:
+        bestScore = successorScore
+        bestAction = action
+    return (bestScore, bestAction)
+
+
+
+  def _minPlayer(self, gameState, depth):
+    actions = gameState.getLegalActions(1)
+    bestScore = 9999
+
+    for action in actions:
+      successorState = gameState.generateSuccessor(1, action)
+
+      if depth == self.depth: #check if leaf node
+        successorScore = self.evaluationFunction(successorState)
+        if successorScore < bestScore:
+          bestScore = successorScore
+      else:
+        successorScore, _ = self._maxPlayer(successorState, depth+1)
+        if successorScore < bestScore:
+          bestScore = successorScore
+
+    return (bestScore, None)
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
   """

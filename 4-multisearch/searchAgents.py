@@ -199,17 +199,34 @@ def cornersHeuristic(state, problem):
 
     "*** YOUR CODE HERE ***"
     location, corners = state
-    walls = problem.walls.asList()
 
     if not corners:
         return 0
 
-    minCorner = min(corners, key=lambda corner: util.manhattanDistance(corner, location))
-    maxCorner = max(corners, key=lambda corner: util.manhattanDistance(corner, location))
+    keys = list(corners) + [location]
+    values = []
+    for _ in range(len(keys)):
+        values.append(False)
+
+    mst = dict(zip(keys,values))
+
+    sum = 0
+    for start in corners:
+        if mst[start]==True:
+            continue
+
+        mst[start]=True
+        dist = 9999
+        for end in mst:
+            manhatten = util.manhattanDistance(start, end)
+            if manhatten < dist and mst[end]==False:
+                dist = manhatten
+        sum+=dist
+
 
     # I added a scaling factor to the heuristing for tie braking purposes. I know that this technically makes the heuristic inadmissible but since it is so small, it should not matter in practice
     # I dont know how strict you guys are but if this is a problem for you, just delete it :D
-    return 1.001*(util.manhattanDistance(location, minCorner) + util.manhattanDistance(location,maxCorner))
+    return 1.001*sum
 
 
 def foodHeuristic(state, problem):
