@@ -1,3 +1,5 @@
+#samarpan rai (4753763) & nick stracke (4771192)
+
 # multiAgents.py
 # --------------
 # Licensing Information: Please do not distribute or publish solutions to this
@@ -76,7 +78,7 @@ class ReflexAgent(Agent):
     newGhostPositions = successorGameState.getGhostPositions()
 
     closestGhost = min([manhattanDistance(newPos, newGhost) for newGhost in newGhostPositions])
-    indexGhost = [i for i in range(len(newGhostPositions)) if manhattanDistance(newPos, newGhostPositions[i])==closestGhost]
+    #indexGhost = [i for i in range(len(newGhostPositions)) if manhattanDistance(newPos, newGhostPositions[i])==closestGhost]
 
     closestFood=0
     if newFoods:
@@ -85,7 +87,7 @@ class ReflexAgent(Agent):
 
 
 
-    if closestGhost < 2 and newScaredTimes[indexGhost[0]]==0:
+    if closestGhost < 2 and 0 in newScaredTimes: #newScaredTimes[indexGhost[0]]==0:
       return -9999
     elif (currentGameState.getNumFood() - successorGameState.getNumFood())==1:
       return 9999
@@ -204,33 +206,38 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
       Returns the minimax action using self.depth and self.evaluationFunction
     """
     "*** YOUR CODE HERE ***"
+    alpha = -9999
+    beta = 9999
+    player = 0
+    bestAction="Stop"
 
-
-    score, action = self._alphaBeta(gameState, -9999, 9999, True, self.depth, None)
-    print(score)
-    return action
-
-
-  def _alphaBeta(self, gameState, alpha, beta, maxPlayer, depth):
-    if gameState.isWin() or gameState.isLose() or depth==0:
-      return (self.evaluationFunction(gameState), "Stop")
-
-    elif maxPlayer:
-      actions = gameState.getLegalActions(0)
-      for action in actions:
-        successorState = gameState.generateSuccessor(0, action)
-        successorScore = self._alphaBeta(successorState, alpha, beta, False, depth)
+    actions = gameState.getLegalActions(player)
+    for action in actions:
+        successorState = gameState.generateSuccessor(player, action)
+        successorScore = self._alphaBeta(successorState, alpha, beta, 1, self.depth)
         if successorScore > alpha:
-            test = 1
-            if alpha >= beta:
-              return alpha
+            alpha = successorScore
+            bestAction = action
+    return bestAction
+
+
+  def _alphaBeta(self, gameState, alpha, beta, player, depth):
+    if gameState.isWin() or gameState.isLose() or depth==0:
+      return self.evaluationFunction(gameState)
+
+    actions = gameState.getLegalActions(player)
+    if player==0:
+      for action in actions:
+        successorState = gameState.generateSuccessor(player, action)
+        alpha = max(alpha,self._alphaBeta(successorState,alpha,beta,1,depth))
+        if alpha >= beta:
+            return alpha
       return alpha
 
     else:
-      actions = gameState.getLegalActions(1)
       for action in actions:
-        successorState = gameState.generateSuccessor(1, action)
-        beta = min(beta, self._alphaBeta(successorState, alpha, beta, True, depth-1))
+        successorState = gameState.generateSuccessor(player, action)
+        beta = min(beta, self._alphaBeta(successorState, alpha, beta, 0, depth-1))
         if alpha >= beta:
           return beta
       return beta
