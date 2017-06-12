@@ -178,9 +178,50 @@ class MyPacmanAgent(CompetitionAgent):
     Just like in the previous projects, getAction takes a GameState and returns
     some Directions.X for some X in the set {North, South, West, East, Stop}. 
     """
+
+    #Uncomment this section if you wanna use reflex agent
+    """
+    # Collect legal moves and successor states
+    legalMoves = gameState.getLegalActions()
+
+    # try each of the actions and pick the best one
+    scores=[]
+    for action in legalMoves:
+      successorGameState = gameState.generatePacmanSuccessor(action)
+      scores.append(self.evaluationFunctionReflex(gameState, successorGameState))
+    
+    # get the best action
+    bestScore = max(scores)
+    bestIndices = [index for index in range(len(scores)) if scores[index] == bestScore]
+    chosenIndex = random.choice(bestIndices) # Pick randomly among the best
+    """
+
+
+
+
+
+
     self.depth = 2
     a = self.minimax(gameState, True, self.depth)
+    print(self.test)
     return a[1]
+
+  def registerInitialState(self, gameState):
+    """
+    This method handles the initial setup of the
+    agent to populate useful fields.
+
+    A distanceCalculator instance caches the maze distances 
+    between each pair of positions, so your agents can use:
+    self.distancer.getDistance(p1, p2)
+    """
+    self.distancer = distanceCalculator.Distancer(gameState.data.layout)
+
+    # uncomment this line to use maze-distances (instead of manhatten distances as default.)
+    self.distancer.getMazeDistances()
+
+    self.classifier
+
 
   def isTrapped (self, currentGameState):
     pacman = currentGameState.getPacmanPosition()
@@ -226,7 +267,7 @@ class MyPacmanAgent(CompetitionAgent):
 
   def minimax(self, gameState , maxi, depth):
         if self.isTerminal(gameState) or depth == 0:
-          return (self.evaluationFunction(gameState), Directions.STOP)
+          return (self.evaluationFunctionMinimax(gameState), Directions.STOP)
 
         childeren = util.PriorityQueue()
         if maxi:
@@ -249,7 +290,10 @@ class MyPacmanAgent(CompetitionAgent):
             childeren.push((child[0], a), child[0])
         return childeren.pop()
 
-  def evaluationFunction(self, state):
+
+
+  #Nick
+  def evaluationFunctionMinimax(self, state):
     """
     A very poor evsaluation function. You can do better!
     """
@@ -258,10 +302,11 @@ class MyPacmanAgent(CompetitionAgent):
     Pos = currentGameState.getPacmanPosition()
     Food = currentGameState.getFood()
     GhostStates = currentGameState.getGhostStates()
-    ghostDistance = [util.manhattanDistance(Pos, ghost.configuration.pos)for ghost in GhostStates if ghost.scaredTimer == 0]
-    scaredDistance = [util.manhattanDistance(Pos, ghost.configuration.pos)for ghost in GhostStates if ghost.scaredTimer != 0]
-    capsuleDist = [util.manhattanDistance(Pos, capsule)for capsule in currentGameState.getCapsules()]
+    ghostDistance = [self.distancer.getDistance(Pos, ghost.configuration.pos)for ghost in GhostStates if ghost.scaredTimer == 0]
+    scaredDistance = [self.distancer.getDistance(Pos, ghost.configuration.pos)for ghost in GhostStates if ghost.scaredTimer != 0]
+    capsuleDist = [self.distancer.getDistance(Pos, capsule)for capsule in currentGameState.getCapsules()]
     foodlist = []
+
     for h in range(Food.height):
         for w in range(Food.width):
             if Food[w][h]:
@@ -282,5 +327,37 @@ class MyPacmanAgent(CompetitionAgent):
     return - min(foodDist) + min(ghostDistance) + currentGameState.getScore() - 100*len(capsuleDist)  + random.choice(range(10))
 
     return  min(foodDist) * currentGameState.getScore() * min(ghostDistance)
+
+
+
+
+
+
+  #Samarpan
+  def evaluationFunctionReflex(self, currentGameState, successorGameState):
+
+    Pos = currentGameState.getPacmanPosition()
+    Food = currentGameState.getFood()
+
+    newPos = successorGameState.getPacmanPosition()
+    newFood = successorGameState.getFood()
+    newGhostStates = successorGameState.getGhostStates()
+    newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
+
+    if successorGameState.isWin():
+      return float('inf')
+
+    score = 0
+    # Check for collisions with ghosts
+    # High positive score if Pacman can easily eat a ghost (i.e. one very nearby)
+    # High negative score if Pacman can easily be eaten by ghost (i.e. one nearby)
+    ghostPositions = successorGameState.getGhostPositions()
+
+
+    for index, ghostPosition in enumerate(ghostPositions):
+      ghostScaredTime = newScaredTimes[index]
+      distanceToGhost = self.distancer.getDistance(newPos, ghostPosition)
+
+
 
 #MyPacmanAgent=BaselineAgent

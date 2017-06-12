@@ -154,7 +154,6 @@ class MinimaxAgent(MultiAgentSearchAgent):
     """
     #http://artint.info/html/ArtInt_240.html
     score, action = self._maxPlayer(gameState, 1)
-    print(score)
     return action
 
 
